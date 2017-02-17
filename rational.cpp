@@ -3,6 +3,8 @@
 
 int gcd(int a, int b)
 {
+    if(a < 0)
+        a = -(a);
     if (b == 0)
     {
         return a;
@@ -16,6 +18,30 @@ int lcm(int m, int n)
     return (m / gcd(m, n) * n);
 }
 
+Rational::Rational(int numerator, int denominator)
+{
+    try
+    {
+        if(denominator == 0)
+        {
+            NullDenominator excepton;
+            throw excepton;
+        }
+        if(denominator < 0)
+        {
+            denominator = -(denominator);
+            numerator = -(numerator);
+        }
+        numerator_ = numerator;
+        denominator_ = denominator;
+        this->reduce();
+    }
+    catch(NullDenominator exc)
+    {
+        exc.Print_Warning_Message();
+        Rational();
+    }
+}
 
 Rational::Rational(const Rational& rational)
 {
@@ -30,61 +56,61 @@ Rational& Rational::operator =(const Rational& rational)
     return *this;
 }
 
-Rational Rational::denum(int lcm)
+Rational& Rational::set_denominator(int denominator)
 {
-    int multiplier = lcm / denominator_;
-    Rational temp(numerator_ * multiplier, denominator_ * multiplier);
-    return temp;
+    int multiplier = denominator / denominator_;
+    numerator_ *= multiplier;
+    denominator_ *= multiplier;
+    return *this;
 }
 
 
-void Rational::add(Rational rational)
+Rational& Rational::add(Rational &rational)
 {
     if(denominator_ != rational.denominator_)
     {
         int lcm_value = lcm(denominator_, rational.denominator_);
-        *this = this->denum(lcm_value);
-        rational = rational.denum(lcm_value);
+        set_denominator(lcm_value);
+        rational.set_denominator(lcm_value);
         this->add(rational);
     }
     else
     {
         numerator_ += rational.numerator_;
     }
+    this->reduce();
+    return *this;
 
 }
 
 
-void Rational::sub(Rational rational)
+Rational& Rational::sub(Rational &rational)
 {
-    if(denominator_ != rational.denominator_)
-    {
-        int lcm_value = lcm(denominator_, rational.denominator_);
-        *this = this->denum(lcm_value);
-        rational = rational.denum(lcm_value);
-        this->sub(rational);
-    }
-    else
-    {
-        numerator_ -= rational.numerator_;
-    }
+   Rational temp(-(rational.numerator_), rational.denominator_);
+   this->add(temp);
+   return *this;
 }
 
-void Rational::mul(Rational rational)
+Rational& Rational::mul(Rational &rational)
 {
     numerator_ *= rational.numerator_;
     denominator_ *= rational.denominator_;
+    reduce();
+    return *this;
 }
 
-void Rational::div(Rational rational)
+Rational& Rational::div(Rational &rational)
 {
     numerator_ *= rational.denominator_;
     denominator_ *= rational.numerator_;
+    reduce();
+    return *this;
 }
 
-void Rational::neg()
+Rational& Rational::neg()
 {
     numerator_ = -(numerator_);
+    return *this;
 }
 
 Rational& Rational::operator+=(Rational rational)
@@ -122,6 +148,20 @@ Rational Rational::operator+() const
 {
     Rational number(this->numerator_, this->denominator_);
     return number;
+}
+
+Rational& Rational::reduce()
+{
+    int gcd_ = gcd(numerator_, denominator_);
+    numerator_ /= gcd_;
+    denominator_ /= gcd_;
+    return *this;
+}
+
+std::ostream& operator <<(std::ostream& os, const Rational& rational)
+{
+    os << rational.get_numerator() << '/' << rational.get_denominator();
+    return os;
 }
 
 Rational operator+(Rational lhs, Rational rhs)
