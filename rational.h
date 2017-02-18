@@ -4,23 +4,11 @@
 int gcd(int a, int b);
 int lcm(int m, int n);
 
-class Exeption
-{
-public:
-    virtual void Print_Warning_Message() = 0;
-};
-class NullDenominator : public Exeption
-{
-public:
-    void Print_Warning_Message()
-    {
-        std::cerr  << "The value of denominator can`t be 0";
-    }
-};
 
 struct Rational
 {
-    Rational(int numerator = 0, int denominator = 1);
+    Rational():numerator_(0), denominator_(1){}
+    Rational(int numerator, int denominator);
     Rational(const Rational& );
 
     Rational& operator =(const Rational& );

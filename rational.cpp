@@ -23,10 +23,8 @@ Rational::Rational(int numerator, int denominator)
     try
     {
         if(denominator == 0)
-        {
-            NullDenominator excepton;
-            throw excepton;
-        }
+            throw 0;
+
         if(denominator < 0)
         {
             denominator = -(denominator);
@@ -35,11 +33,13 @@ Rational::Rational(int numerator, int denominator)
         numerator_ = numerator;
         denominator_ = denominator;
         this->reduce();
+
     }
-    catch(NullDenominator exc)
+    catch(int)
     {
-        exc.Print_Warning_Message();
-        Rational();
+        std::cerr << "Denominator cannot be zero! Default constructor will be called.";
+        numerator_ = 0;
+        denominator_ = 1;
     }
 }
 
